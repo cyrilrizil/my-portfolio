@@ -1,2 +1,107 @@
-# my-portfolio
-Web Application Development Technology
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mini Shopping Cart</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    .product, .cart-item {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+    }
+    button { margin: 5px; }
+  </style>
+</head>
+<body>
+
+<h2>🛍 Products</h2>
+
+<div class="product">
+  <p>Product 1 - ₱100</p>
+  <button onclick="addToCart('Product 1', 100)">Add to Cart</button>
+</div>
+
+<div class="product">
+  <p>Product 2 - ₱200</p>
+  <button onclick="addToCart('Product 2', 200)">Add to Cart</button>
+</div>
+
+<h2>🛒 Cart</h2>
+<div id="cart"></div>
+
+<h3>Total: ₱<span id="total">0</span></h3>
+
+<script>
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+function saveCart() {
+  localStorage.setItem("cart", JSON.stringify(cart));
+}
+
+function addToCart(name, price) {
+  let item = cart.find(i => i.name === name);
+
+  if (item) {
+    item.quantity++;
+  } else {
+    cart.push({ name, price, quantity: 1 });
+  }
+
+  saveCart();
+  displayCart();
+}
+
+function changeQuantity(name, amount) {
+  let item = cart.find(i => i.name === name);
+
+  if (item) {
+    item.quantity += amount;
+
+    if (item.quantity <= 0) {
+      cart = cart.filter(i => i.name !== name);
+    }
+  }
+
+  saveCart();
+  displayCart();
+}
+
+function removeItem(name) {
+  cart = cart.filter(i => i.name !== name);
+  saveCart();
+  displayCart();
+}
+
+function displayCart() {
+  const cartDiv = document.getElementById("cart");
+  const totalSpan = document.getElementById("total");
+
+  cartDiv.innerHTML = "";
+  let total = 0;
+
+  cart.forEach(item => {
+    total += item.price * item.quantity;
+
+    let div = document.createElement("div");
+    div.className = "cart-item";
+
+    div.innerHTML = `
+      <strong>${item.name}</strong><br>
+      ₱${item.price} x ${item.quantity}<br>
+      <button onclick="changeQuantity('${item.name}', 1)">+</button>
+      <button onclick="changeQuantity('${item.name}', -1)">-</button>
+      <button onclick="removeItem('${item.name}')">Remove</button>
+    `;
+
+    cartDiv.appendChild(div);
+  });
+
+  totalSpan.textContent = total;
+}
+
+displayCart();
+</script>
+
+</body>
+</html>
